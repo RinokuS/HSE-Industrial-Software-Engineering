@@ -29,7 +29,7 @@ namespace runsim {
             exit(-1);
         } else if (pid == 0) {
             counter_ptr[0]++;
-            sleep(3); // for better testing
+            //sleep(3); // for better testing
             system(command);
             counter_ptr[0]--;
             exit(0);
