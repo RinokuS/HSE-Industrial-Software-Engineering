@@ -1,0 +1,7 @@
+10 pwd
+8 ls
+5 ../test_script2.sh
+11 ../test_script3.sh
+1 ls
+3 pwd
+2 ../test_script1.sh
