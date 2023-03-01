@@ -24,12 +24,13 @@ namespace {
 
 int main (int argc, char *argv[]) {
     if (argc < 2) {
-        std::cerr << "Error: number of processes is not provided in params.";
-        return -1;
+        threads_number = sysconf(_SC_NPROCESSORS_ONLN) + 1;
+    } else {
+        threads_number = std::stoi(argv[1]);
     }
     std::uint32_t value;
     std::uint32_t number;
-    threads_number = std::stoi(argv[1]);
+    
     // initializing shared memory for result
     std::int32_t shared_memory_id = shmget(IPC_PRIVATE, sizeof(std::int64_t), IPC_CREAT | 0666);
 

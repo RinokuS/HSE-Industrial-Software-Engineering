@@ -35,12 +35,13 @@ namespace {
 
 int main (int argc, char *argv[]) {
     if (argc < 2) {
-        std::cerr << "Error: number of threads is not provided in params.";
-        return -1;
+        threads_number = sysconf(_SC_NPROCESSORS_ONLN) + 1;
+    } else {
+        threads_number = std::stoi(argv[1]);
     }
+
     std::uint32_t value;
     std::uint32_t number;
-    threads_number = std::stoi(argv[1]);
     result = 1;
 
     do {
