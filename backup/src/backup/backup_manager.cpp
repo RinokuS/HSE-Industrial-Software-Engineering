@@ -1,4 +1,4 @@
-// USELESS
+// backup
 #include <backup_manager.hpp>
 // C++ STL
 #include <iostream>
