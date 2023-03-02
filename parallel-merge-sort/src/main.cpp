@@ -3,11 +3,6 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-#include <semaphore>
-#include <fcntl.h>
-#include <pthread.h>
-// fmt
-#include <fmt/format.h>
 
 namespace {
     std::filesystem::path path_to_array_of_numbers = "../array_of_numbers.txt";
