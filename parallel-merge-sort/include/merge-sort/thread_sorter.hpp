@@ -4,23 +4,29 @@
 #include <vector>
 #include <pthread.h>
 #include <iostream>
-#include <cmath>
 #include <pthread.h>
+#include <cassert>
 
 namespace merge_sort {
+    template<typename T>
     struct thread_data {
-        std::int32_t left, right, level;
-        std::vector<std::int32_t>* elements_ptr;
+        std::int32_t left, right;
+        std::vector<T>* elements_ptr;
     };
 
+    template<typename T>
     class thread_sorter {
     public:
-        thread_sorter(const std::vector<std::int32_t> &elements_to_sort) : m_elements(elements_to_sort) {}
+        thread_sorter(const std::vector<T> &elements_to_sort) : m_elements(elements_to_sort) {}
 
         void sort() {
-            thread_data data = {0, static_cast<std::int32_t>(m_elements.size() - 1), static_cast<std::int32_t>(ceil(log2(m_elements.size()))), &m_elements};
+            thread_data<T> data = {0, static_cast<std::int32_t>(m_elements.size() - 1), &m_elements};
             threaded_merge_sort(reinterpret_cast<void*>(&data));
 
+            // testing array to prove efficiency
+            for (int i = 0; i < m_elements.size() - 1; ++i) {
+                assert(m_elements[i] < m_elements[i + 1]);
+            }
             for (const auto& elem: m_elements) {
                 std::cout << elem << ' ';
             }
@@ -28,13 +34,14 @@ namespace merge_sort {
         }
 
     private:
-        static void merge(std::int32_t left, std::int32_t middle, std::int32_t right, std::vector<std::int32_t>* elements) {
+        // simple merge function from basic merge_sort
+        static void merge(std::int32_t left, std::int32_t middle, std::int32_t right, std::vector<T>* elements) {
             std::int32_t i, j, k = 0;
             std::int32_t left_length = middle - left + 1;
             std::int32_t right_length = right - middle;
 
-            std::int32_t left_array[left_length];
-            std::int32_t right_array[right_length];
+            T left_array[left_length];
+            T right_array[right_length];
 
             /* copy values to left array */
             for (i = 0; i < left_length; i ++) {
@@ -73,49 +80,37 @@ namespace merge_sort {
             }
         }
 
-        static void merge_sort(std::int32_t left, std::int32_t right, std::vector<std::int32_t>* elements) {
-            if (left >= right) {
-                return;
-            }
-
-            std::int32_t mid = left + (right - left) / 2;
-            merge_sort(left, mid, elements);
-            merge_sort(mid + 1, right, elements);
-
-            merge(left, mid, right, elements);
-        }
-
+        // our multithreading merge-sort
         static void *threaded_merge_sort(void *args) {
-            auto data = reinterpret_cast<thread_data*>(args);
-            std::int32_t left = data->left, right = data->right, level = data->level;
-            std::vector<std::int32_t>* elements = data->elements_ptr;
+            auto data = reinterpret_cast<thread_data<T>*>(args);
+            std::int32_t left = data->left, right = data->right;
+            std::vector<T>* elements = data->elements_ptr;
             if (right <= left) {
-                return nullptr; //one element
+                return nullptr; // one element
             }
-            if (level == 0) {
-                merge_sort(left, right, elements);
-                return nullptr;
-            }
+
             pthread_t left_thread, right_thread;
-            thread_data data1, data2;
+            thread_data<T> data1, data2;
             std::int32_t mid = (left + right) / 2;
-            assign_data_to_thread(left_thread, data1, left, mid, level - 1);
-            assign_data_to_thread(right_thread, data2, mid + 1, right, level - 1);
+            assign_data_to_thread(left_thread, data1, left, mid, elements);
+            assign_data_to_thread(right_thread, data2, mid + 1, right,  elements);
 
             pthread_join(left_thread, nullptr);
             pthread_join(right_thread, nullptr);
             merge(left, mid, right, elements);
+
+            return nullptr;
         }
 
-        static void assign_data_to_thread(pthread_t &thread, thread_data &data, std::int32_t left,
-                                   std::int32_t right, std::int32_t level) {
+        static void assign_data_to_thread(pthread_t &thread, thread_data<T> &data, std::int32_t left,
+                                   std::int32_t right, std::vector<T> *elements) {
             data.left = left;
             data.right = right;
-            data.level = level;
+            data.elements_ptr = elements;
 
             pthread_create(&thread, nullptr,threaded_merge_sort,reinterpret_cast<void*>(&data));
         }
 
-        std::vector<std::int32_t> m_elements;
+        std::vector<T> m_elements;
     };
 }

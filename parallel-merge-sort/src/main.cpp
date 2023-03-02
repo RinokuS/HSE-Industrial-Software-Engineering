@@ -30,8 +30,8 @@ namespace {
     }
 }
 
-int main (int argc, char *argv[]) {
-    merge_sort::thread_sorter sorter(read_array());
+int main () {
+    merge_sort::thread_sorter<std::int32_t> sorter(read_array());
     sorter.sort();
 
     return 0;

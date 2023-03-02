@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(merge-sort)
 
 set(CMAKE_CXX_STANDARD 20)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -lpthread")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread")
 
 MACRO(HEADER_DIRECTORIES return_list)
     FILE(GLOB_RECURSE new_list *.hpp)
